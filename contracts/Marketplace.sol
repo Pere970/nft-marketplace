@@ -64,6 +64,10 @@ contract Marketplace is ReentrancyGuard, Ownable {
         return marketItems[itemId];
     }
 
+    function getMarketItemTransactions(uint256 itemId) public view returns (MarketSale[] memory) {
+        return marketTransactions[itemId];
+    }
+
     // Create a new item on the marketplace and optionally put it for sale
     function createMarketItem(
         address nftContract,
