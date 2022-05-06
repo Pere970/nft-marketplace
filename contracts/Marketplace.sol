@@ -89,14 +89,15 @@ contract Marketplace is ReentrancyGuard, Ownable {
     }
 
     // List an owned item on the marketplace
-    function listMarketItem(uint itemId, uint price) public nonReentrant {
+    function listMarketItem(uint itemId, uint price) public {
         require(IERC721(marketItems[itemId].nftContract).ownerOf(marketItems[itemId].tokenId) == msg.sender, "You don't own this NFT!");
         require(marketItems[itemId].sold, "This item is currently for sale!");
         require(price > 0, "Price must be greater than 0!");
 
         IERC721(marketItems[itemId].nftContract).transferFrom(msg.sender, address(this), marketItems[itemId].tokenId);
-        marketItems[_tokenIds.current()].sold = false;
-        marketItems[_tokenIds.current()].owner = address(this);
+        marketItems[itemId].sold = false;
+        marketItems[itemId].owner = address(this);
+        marketItems[itemId].price = price;
 
         if(marketTransactions[itemId].length > 0){
             _tokensSold.decrement();
@@ -125,6 +126,7 @@ contract Marketplace is ReentrancyGuard, Ownable {
         marketItems[itemId].sold = true;
         marketItems[itemId].owner = msg.sender;
         marketItems[itemId].seller = msg.sender;
+        marketItems[itemId].price = 0;
         
         //Create sale transaction
         _tokenSales.increment();
