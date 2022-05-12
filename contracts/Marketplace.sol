@@ -148,7 +148,7 @@ contract Marketplace is ReentrancyGuard, Ownable {
         // looping over the number of items created (if number has not been sold populate the array)
         MarketItem[] memory items = new MarketItem[](unsoldItemCount);
         for(uint i = 0; i < itemCount; i++) {
-            if(marketItems[i + 1].owner == address(0)) {
+            if(marketItems[i + 1].sold == false) {
                 uint currentId = i + 1;
                 MarketItem storage currentItem = marketItems[currentId];
                 items[currentIndex] = currentItem; 
@@ -161,27 +161,25 @@ contract Marketplace is ReentrancyGuard, Ownable {
         // return nfts that the user has purchased
 
         function fetchMyNFTs() public view returns (MarketItem[] memory) {
-            uint totalItemCount = _tokenIds.current();
-            // a second counter for each individual user
             uint itemCount = 0;
-            uint currentIndex = 0;
-
-            for(uint i = 0; i < totalItemCount; i++) {
-                if(marketItems[i + 1].owner == msg.sender) {
-                    itemCount += 1;
+           
+            for(uint i = 0; i < _tokenIds.current(); i++) {
+                if(marketItems[i + 1].owner == msg.sender 
+                || marketItems[i + 1].seller == msg.sender) {
+                    itemCount++;
                 }
             }
 
             // second loop to loop through the amount you have purchased with itemcount
             // check to see if the owner address is equal to msg.sender
-
+            uint currentIndex = 0;
             MarketItem[] memory items = new MarketItem[](itemCount);
-            for(uint i = 0; i < totalItemCount; i++) {
-                if(marketItems[i +1].owner == msg.sender) {
+            for(uint i = 0; i < _tokenIds.current(); i++) {
+                if(marketItems[i +1].owner == msg.sender
+                || marketItems[i + 1].seller == msg.sender) {
                     uint currentId = marketItems[i + 1].itemId;
                     // current array
-                    MarketItem storage currentItem = marketItems[currentId];
-                    items[currentIndex] = currentItem;
+                    items[currentIndex] = marketItems[currentId];
                     currentIndex += 1;
                 }
             }
