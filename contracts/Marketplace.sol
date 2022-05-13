@@ -108,6 +108,7 @@ contract Marketplace is ReentrancyGuard, Ownable {
 
        
     function sellMarketItem(uint itemId) public nonReentrant {
+        require(marketItems[itemId].seller != msg.sender, "You can't buy your own item!");
         require(IERC20(marketCurrency).balanceOf(msg.sender) >= marketItems[itemId].price, "You don't have enough funds!");
         require(IERC20(marketCurrency).allowance(msg.sender, address(this)) >= marketItems[itemId].price, "Marketplace is not allowed to use your funds, check the allowance!");
         require(!marketItems[itemId].sold, "This item is already sold!");

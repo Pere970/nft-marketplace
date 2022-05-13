@@ -17,7 +17,7 @@ export default function MarketplaceIndex() {
     const [loading, setLoading] = useState(false);
     
     async function getMarketplaceNFTs(){
-        const provider = new ethers.providers.JsonRpcProvider("https://polygon-mumbai.infura.io/v3/{yourprojectID}")
+        const provider = new ethers.providers.JsonRpcProvider("https://polygon-mumbai.infura.io/v3/{infuraProjectId}")
         const nftContract = new ethers.Contract(nftAddress, NFT.abi, provider)
         const marketContract = new ethers.Contract(marketplaceAddress, Marketplace.abi, provider)
         const erc20Contract = new ethers.Contract(erc20TokenAddress, ERC20Token.abi, provider)
@@ -47,7 +47,7 @@ export default function MarketplaceIndex() {
         }
       }
 
-      async function buyNft(itemId){
+      async function buyNft(itemId, price){
         setLoading(true)
         const web3Modal = new Web3Modal()
         const connection = await web3Modal.connect()
@@ -56,7 +56,7 @@ export default function MarketplaceIndex() {
         const marketContract = new ethers.Contract(marketplaceAddress, Marketplace.abi, signer)
         const erc20Contract = new ethers.Contract(erc20TokenAddress, ERC20Token.abi, signer)
         const marketAllowance = await erc20Contract.allowance(provider.provider.selectedAddress, marketplaceAddress)
-        if(marketAllowance.lt(nftPrice)){
+        if(marketAllowance.lt(ethers.utils.parseUnits(String(price), 'ether'))){
             //We must approve tokens to marketplace contract
             const tx = await erc20Contract.approve(marketplaceAddress, await erc20Contract.totalSupply())
             await tx.wait()
@@ -86,7 +86,7 @@ export default function MarketplaceIndex() {
                             fluid="true"
                             icon="dollar sign"
                             loading={loading}
-                            onClick= {async () => await buyNft(i.itemId)}
+                            onClick= {async () => await buyNft(i.itemId, i.price)}
                             primary
                         />
                     </div>),
